@@ -30,9 +30,11 @@ int range = 100;
 
 unsigned long previousMicrosX = 0;
 unsigned long previousMicrosY = 0;
+unsigned long previousMicrosAccl = 0;
 
-float intervalX = 200.0;
-float intervalY = 200.0;
+float intervalX = 400;
+float intervalY = 400;
+float intervalAccl = 400;
 
 const byte numChars = 32;
 char receivedChars[numChars];

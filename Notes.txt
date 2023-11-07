@@ -1,0 +1,37 @@
+        if (accelTarget == 2) {
+/*
+          Serial.print("startXPos ");
+          Serial.print(startXPos);
+          Serial.print(" StepXPos ");
+          Serial.print(StepXPos);
+          Serial.print("  endXPos ");
+          Serial.print(endXPos);
+          Serial.print("  StepXPos ");
+          Serial.println(StepXPos);
+          
+          if (startXPos - StepXPos < 0) {
+            if ((startXPos - StepXPos) * -1 < 750) {
+              accel -= .01;
+            }
+          } else if ((startXPos - StepXPos) < 750) {
+            accel -= .01;
+          }
+
+          if (endXPos - StepXPos < 0) {
+            if ((endXPos - StepXPos) * -1 < 750) {
+              accel += .01;
+            }
+          } else if ((endXPos - StepXPos) < 750) {
+            accel += .01;
+          }
+          */
+        }
+		
+		  Serial.print("Target X ");
+  Serial.print(XCardTarget);
+  Serial.print("  Y ");
+  Serial.println(YCardTarget);
+  
+  
+    float XCardTarget = XCard - StepXPos;
+  float YCardTarget = YCard - StepYPos;
