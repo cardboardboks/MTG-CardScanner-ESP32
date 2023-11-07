@@ -153,93 +153,93 @@ void XY_Pos(float XCard, float YCard) {
     Serial.println(fromXEnd);
     */
 
-    if (accelX < .1) {
-      accelX = .1;
-    }
-    if (accelX > 1) {
-      accelX = 1;
-    }
-
-    if (accelY < .1) {
-      accelY = .1;
-    }
-    if (accelY > 1) {
-      accelY = 1;
-    }
-
-    // Serial.println(accel);
-
-    if (XCard - StepXPos != 0) {
-      if (currentMicrosX - previousMicrosX >= (intervalX)*accelX) {
-        previousMicrosX = currentMicrosX;
-
-        digitalWrite(latchPin, LOW);
-
-        bitSet(ShiftRegOut, 7);
-        bitSet(ShiftRegOut, 1);
-
-        shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
-
-        digitalWrite(latchPin, HIGH);
-
-        digitalWrite(latchPin, LOW);
-
-        bitClear(ShiftRegOut, 7);
-        bitClear(ShiftRegOut, 1);
-
-        shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
-
-        digitalWrite(latchPin, HIGH);
-
-        StepXPos += StepXDir;
+      if (accelX < .1) {
+        accelX = .1;
       }
-    } else {
-      StepXDir = 0;
-    }
-
-
-    if (YCard - StepYPos != 0) {
-      if (currentMicrosY - previousMicrosY >= (intervalY)*accelY) {
-        previousMicrosY = currentMicrosY;
-
-        digitalWrite(latchPin, LOW);
-
-        bitSet(ShiftRegOut, 7);
-        bitSet(ShiftRegOut, 5);
-
-        shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
-
-        digitalWrite(latchPin, HIGH);
-
-        digitalWrite(latchPin, LOW);
-
-        bitClear(ShiftRegOut, 7);
-        bitClear(ShiftRegOut, 5);
-
-        shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
-
-        digitalWrite(latchPin, HIGH);
-
-        StepYPos += StepYDir;
+      if (accelX > 1) {
+        accelX = 1;
       }
-    } else {
-      StepYDir = 0;
+
+      if (accelY < .1) {
+        accelY = .1;
+      }
+      if (accelY > 1) {
+        accelY = 1;
+      }
+
+      // Serial.println(accel);
+
+      if (XCard - StepXPos != 0) {
+        if (currentMicrosX - previousMicrosX >= (intervalX)*accelX) {
+          previousMicrosX = currentMicrosX;
+
+          digitalWrite(latchPin, LOW);
+
+          bitSet(ShiftRegOut, 7);
+          bitSet(ShiftRegOut, 1);
+
+          shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
+
+          digitalWrite(latchPin, HIGH);
+
+          digitalWrite(latchPin, LOW);
+
+          bitClear(ShiftRegOut, 7);
+          bitClear(ShiftRegOut, 1);
+
+          shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
+
+          digitalWrite(latchPin, HIGH);
+
+          StepXPos += StepXDir;
+        }
+      } else {
+        StepXDir = 0;
+      }
+
+
+      if (YCard - StepYPos != 0) {
+        if (currentMicrosY - previousMicrosY >= (intervalY)*accelY) {
+          previousMicrosY = currentMicrosY;
+
+          digitalWrite(latchPin, LOW);
+
+          bitSet(ShiftRegOut, 7);
+          bitSet(ShiftRegOut, 5);
+
+          shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
+
+          digitalWrite(latchPin, HIGH);
+
+          digitalWrite(latchPin, LOW);
+
+          bitClear(ShiftRegOut, 7);
+          bitClear(ShiftRegOut, 5);
+
+          shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
+
+          digitalWrite(latchPin, HIGH);
+
+          StepYPos += StepYDir;
+        }
+      } else {
+        StepYDir = 0;
+      }
     }
+    disableSteppers();
   }
-  disableSteppers();
-}
 
-void Z_Pos(int ZCard) {
-}
+  void Z_Pos(int ZCard) {
+  }
 
-void disableSteppers() {
-  digitalWrite(latchPin, LOW);
-  shiftOut(dataPin, clockPin, MSBFIRST, 0b11111111);
-  digitalWrite(latchPin, HIGH);
-}
+  void disableSteppers() {
+    digitalWrite(latchPin, LOW);
+    shiftOut(dataPin, clockPin, MSBFIRST, 0b11111111);
+    digitalWrite(latchPin, HIGH);
+  }
 
-void enalbeSteppers() {
-  digitalWrite(latchPin, LOW);
-  shiftOut(dataPin, clockPin, MSBFIRST, 0b00000000);
-  digitalWrite(latchPin, HIGH);
-}
+  void enalbeSteppers() {
+    digitalWrite(latchPin, LOW);
+    shiftOut(dataPin, clockPin, MSBFIRST, 0b00000000);
+    digitalWrite(latchPin, HIGH);
+  }
