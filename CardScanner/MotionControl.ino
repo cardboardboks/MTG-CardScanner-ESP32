@@ -18,7 +18,7 @@ void XY_Pos(float XCard, float YCard) {
   float fromYStart = 0;
   float fromYEnd = 0;
 
-  int acclDur = 250;
+  int acclDur = 500;
 
   enalbeSteppers();
 
@@ -93,6 +93,8 @@ void XY_Pos(float XCard, float YCard) {
     if (currentMicrosAccl - previousMicrosAccl >= intervalAccl) {
       previousMicrosAccl = currentMicrosAccl;
 
+      //check if the distance being traveled is less then the acceleration distance and halve it so the acceleration and deacelrtion dont cancel out
+
       //  if (accelTarget == 1) {
       if (StepYPos - startYPos < 0) {
         fromYStart = (StepYPos - startYPos) * -1;
@@ -107,11 +109,11 @@ void XY_Pos(float XCard, float YCard) {
       }
 
       if (fromYStart < acclDur && fromYEnd > acclDur) {
-        accelY -= .0075;
+        accelY -= .0035;
       }
 
       if (fromYEnd < acclDur && fromYStart > acclDur) {
-        accelY += .0075;
+        accelY += .0035;
       }
       //  }
 
@@ -129,11 +131,11 @@ void XY_Pos(float XCard, float YCard) {
       }
 
       if (fromXStart < acclDur && fromXEnd > acclDur) {
-        accelX -= .0075;
+        accelX -= .0035;
       }
 
       if (fromXEnd < acclDur && fromXStart > acclDur) {
-        accelX += .0075;
+        accelX += .0035;
       }
     }
     //  }
@@ -153,93 +155,93 @@ void XY_Pos(float XCard, float YCard) {
     Serial.println(fromXEnd);
     */
 
-      if (accelX < .1) {
-        accelX = .1;
-      }
-      if (accelX > 1) {
-        accelX = 1;
-      }
-
-      if (accelY < .1) {
-        accelY = .1;
-      }
-      if (accelY > 1) {
-        accelY = 1;
-      }
-
-      // Serial.println(accel);
-
-      if (XCard - StepXPos != 0) {
-        if (currentMicrosX - previousMicrosX >= (intervalX)*accelX) {
-          previousMicrosX = currentMicrosX;
-
-          digitalWrite(latchPin, LOW);
-
-          bitSet(ShiftRegOut, 7);
-          bitSet(ShiftRegOut, 1);
-
-          shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
-
-          digitalWrite(latchPin, HIGH);
-
-          digitalWrite(latchPin, LOW);
-
-          bitClear(ShiftRegOut, 7);
-          bitClear(ShiftRegOut, 1);
-
-          shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
-
-          digitalWrite(latchPin, HIGH);
-
-          StepXPos += StepXDir;
-        }
-      } else {
-        StepXDir = 0;
-      }
-
-
-      if (YCard - StepYPos != 0) {
-        if (currentMicrosY - previousMicrosY >= (intervalY)*accelY) {
-          previousMicrosY = currentMicrosY;
-
-          digitalWrite(latchPin, LOW);
-
-          bitSet(ShiftRegOut, 7);
-          bitSet(ShiftRegOut, 5);
-
-          shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
-
-          digitalWrite(latchPin, HIGH);
-
-          digitalWrite(latchPin, LOW);
-
-          bitClear(ShiftRegOut, 7);
-          bitClear(ShiftRegOut, 5);
-
-          shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
-
-          digitalWrite(latchPin, HIGH);
-
-          StepYPos += StepYDir;
-        }
-      } else {
-        StepYDir = 0;
-      }
+    if (accelX < .1) {
+      accelX = .1;
     }
-    disableSteppers();
-  }
+    if (accelX > 1) {
+      accelX = 1;
+    }
 
-  void Z_Pos(int ZCard) {
-  }
+    if (accelY < .1) {
+      accelY = .1;
+    }
+    if (accelY > 1) {
+      accelY = 1;
+    }
 
-  void disableSteppers() {
-    digitalWrite(latchPin, LOW);
-    shiftOut(dataPin, clockPin, MSBFIRST, 0b11111111);
-    digitalWrite(latchPin, HIGH);
-  }
+    // Serial.println(accel);
 
-  void enalbeSteppers() {
-    digitalWrite(latchPin, LOW);
-    shiftOut(dataPin, clockPin, MSBFIRST, 0b00000000);
-    digitalWrite(latchPin, HIGH);
+    if (XCard - StepXPos != 0) {
+      if (currentMicrosX - previousMicrosX >= (intervalX)*accelX) {
+        previousMicrosX = currentMicrosX;
+
+        digitalWrite(latchPin, LOW);
+
+        bitSet(ShiftRegOut, 7);
+        bitSet(ShiftRegOut, 1);
+
+        shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
+
+        digitalWrite(latchPin, HIGH);
+
+        digitalWrite(latchPin, LOW);
+
+        bitClear(ShiftRegOut, 7);
+        bitClear(ShiftRegOut, 1);
+
+        shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
+
+        digitalWrite(latchPin, HIGH);
+
+        StepXPos += StepXDir;
+      }
+    } else {
+      StepXDir = 0;
+    }
+
+
+    if (YCard - StepYPos != 0) {
+      if (currentMicrosY - previousMicrosY >= (intervalY)*accelY) {
+        previousMicrosY = currentMicrosY;
+
+        digitalWrite(latchPin, LOW);
+
+        bitSet(ShiftRegOut, 7);
+        bitSet(ShiftRegOut, 5);
+
+        shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
+
+        digitalWrite(latchPin, HIGH);
+
+        digitalWrite(latchPin, LOW);
+
+        bitClear(ShiftRegOut, 7);
+        bitClear(ShiftRegOut, 5);
+
+        shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
+
+        digitalWrite(latchPin, HIGH);
+
+        StepYPos += StepYDir;
+      }
+    } else {
+      StepYDir = 0;
+    }
   }
+  disableSteppers();
+}
+
+void Z_Pos(int ZCard) {
+}
+
+void disableSteppers() {
+  digitalWrite(latchPin, LOW);
+  shiftOut(dataPin, clockPin, MSBFIRST, 0b11111111);
+  digitalWrite(latchPin, HIGH);
+}
+
+void enalbeSteppers() {
+  digitalWrite(latchPin, LOW);
+  shiftOut(dataPin, clockPin, MSBFIRST, 0b00000000);
+  digitalWrite(latchPin, HIGH);
+}
