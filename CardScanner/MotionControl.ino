@@ -55,7 +55,6 @@ void XY_Pos(float XCard, float YCard) {
   }
 
   if (XCardTarget > YCardTarget) {
-    accelTarget = 2;
     if (XCardTarget == 0 || YCardTarget == 0) {
       intervalX = speed;
       intervalY = speed;
@@ -66,7 +65,6 @@ void XY_Pos(float XCard, float YCard) {
   }
 
   if (YCardTarget > XCardTarget) {
-    accelTarget = 1;
     if (YCardTarget == 0 || XCardTarget == 0) {
       intervalX = speed;
       intervalY = speed;
@@ -77,7 +75,6 @@ void XY_Pos(float XCard, float YCard) {
   }
 
   if (XCardTarget == YCardTarget) {
-    accelTarget = 1;
     intervalX = speed;
     intervalY = speed;
   }
@@ -122,53 +119,51 @@ void XY_Pos(float XCard, float YCard) {
         fromYEnd = (StepYPos - endYPos);
       }
 
-
-      if (accelTarget == 1) {
-        if (fromYStart < fromYEnd) {
-          accelX -= .01;
-        }
-
-        if (fromYEnd < fromYStart) {
-          accelX += .01;
-        }
+      if (fromYStart < acclDur && fromYEnd > acclDur) {
+        accelY -= .05;
       }
 
-      if (accelTarget == 2) {
-        if (fromXStart < fromXEnd) {
-          accelX -= .01;
-          //Serial.print("Faster ");
-        }
+      if (fromYEnd < acclDur && fromYStart > acclDur) {
+        accelY += .05;
+      }
 
-        if (fromXEnd < fromXStart) {
-          accelX += .01;
-          //Serial.print("slower ");
-        }
+
+      if (fromXStart < acclDur && fromXEnd > acclDur) {
+        accelX -= .05;
+        //Serial.print("Faster ");
+      }
+
+      if (fromXEnd < acclDur && fromXStart > acclDur) {
+        accelX += .05;
+        //Serial.print("slower ");
       }
     }
 
     accelXOut = accelX;
     accelYOut = accelY;
 
+
     if (accelXOut < .1) {
       accelXOut = .1;
     }
-    if (accelXOut > 1) {
-      accelXOut = 1;
+    if (accelXOut > 10) {
+      accelXOut = 10;
     }
 
     if (accelYOut < .1) {
       accelYOut = .1;
     }
-    if (accelYOut > 1) {
-      accelYOut = 1;
+    if (accelYOut > 10) {
+      accelYOut = 10;
     }
 
+    /*
     Serial.print("X ");
     Serial.print(fromXEnd);
     Serial.print("  Y ");
     Serial.println(fromYEnd);
 
-    /*
+
     Serial.print( intervalX * accelXOut);
     Serial.print("\t");
     Serial.println(intervalY * accelXOut);
@@ -220,7 +215,7 @@ void XY_Pos(float XCard, float YCard) {
 
 
     if (YCard - StepYPos != 0) {
-      if (currentMicrosY - previousMicrosY >= (intervalY * accelXOut)) {
+      if (currentMicrosY - previousMicrosY >= (intervalY * accelYOut)) {
         previousMicrosY = currentMicrosY;
 
         digitalWrite(latchPin, LOW);
