@@ -5,6 +5,9 @@ void XY_Pos(float XCard, float YCard) {
   float accelX = 1;
   float accelY = 1;
 
+  float accelXOut = 1;
+  float accelYOut = 1;
+
   int accelerate = 1;
   int decelerate = 0;
 
@@ -54,29 +57,29 @@ void XY_Pos(float XCard, float YCard) {
   if (XCardTarget > YCardTarget) {
     accelTarget = 2;
     if (XCardTarget == 0 || YCardTarget == 0) {
-      intervalX = 400.0;
-      intervalY = 400.0;
+      intervalX = speed;
+      intervalY = speed;
     } else {
-      intervalX = 400;
-      intervalY = 400 * (XCardTarget / YCardTarget);
+      intervalX = speed;
+      intervalY = speed * (XCardTarget / YCardTarget);
     }
   }
 
   if (YCardTarget > XCardTarget) {
     accelTarget = 1;
     if (YCardTarget == 0 || XCardTarget == 0) {
-      intervalX = 400.0;
-      intervalY = 400.0;
+      intervalX = speed;
+      intervalY = speed;
     } else {
-      intervalX = 400.0 * (YCardTarget / XCardTarget);
-      intervalY = 400.0;
+      intervalX = speed * (YCardTarget / XCardTarget);
+      intervalY = speed;
     }
   }
 
   if (XCardTarget == YCardTarget) {
     accelTarget = 1;
-    intervalX = 400.0;
-    intervalY = 400.0;
+    intervalX = speed;
+    intervalY = speed;
   }
 
   startXPos = StepXPos;
@@ -89,35 +92,12 @@ void XY_Pos(float XCard, float YCard) {
     unsigned long currentMicrosX = micros();
     unsigned long currentMicrosY = micros();
     unsigned long currentMicrosAccl = micros();
+    unsigned long currentOverallAccl = micros();
 
     if (currentMicrosAccl - previousMicrosAccl >= intervalAccl) {
       previousMicrosAccl = currentMicrosAccl;
 
       //check if the distance being traveled is less then the acceleration distance and halve it so the acceleration and deacelrtion dont cancel out
-
-      //  if (accelTarget == 1) {
-      if (StepYPos - startYPos < 0) {
-        fromYStart = (StepYPos - startYPos) * -1;
-      } else {
-        fromYStart = (StepYPos - startYPos);
-      }
-
-      if (StepYPos - endYPos < 0) {
-        fromYEnd = (StepYPos - endYPos) * -1;
-      } else {
-        fromYEnd = (StepYPos - endYPos);
-      }
-
-      if (fromYStart < acclDur && fromYEnd > acclDur) {
-        accelY -= .0035;
-      }
-
-      if (fromYEnd < acclDur && fromYStart > acclDur) {
-        accelY += .0035;
-      }
-      //  }
-
-      //  if (accelTarget == 2) {
       if (StepXPos - startXPos < 0) {
         fromXStart = (StepXPos - startXPos) * -1;
       } else {
@@ -130,24 +110,75 @@ void XY_Pos(float XCard, float YCard) {
         fromXEnd = (StepXPos - endXPos);
       }
 
-      if (fromXStart < acclDur && fromXEnd > acclDur) {
-        accelX -= .0035;
+      if (StepYPos - startYPos < 0) {
+        fromYStart = (StepYPos - startYPos) * -1;
+      } else {
+        fromYStart = (StepYPos - startYPos);
       }
 
-      if (fromXEnd < acclDur && fromXStart > acclDur) {
-        accelX += .0035;
+      if (StepYPos - endYPos < 0) {
+        fromYEnd = (StepYPos - endYPos) * -1;
+      } else {
+        fromYEnd = (StepYPos - endYPos);
+      }
+
+
+      if (accelTarget == 1) {
+        if (fromYStart < fromYEnd) {
+          accelX -= .01;
+        }
+
+        if (fromYEnd < fromYStart) {
+          accelX += .01;
+        }
+      }
+
+      if (accelTarget == 2) {
+        if (fromXStart < fromXEnd) {
+          accelX -= .01;
+          //Serial.print("Faster ");
+        }
+
+        if (fromXEnd < fromXStart) {
+          accelX += .01;
+          //Serial.print("slower ");
+        }
       }
     }
-    //  }
+
+    accelXOut = accelX;
+    accelYOut = accelY;
+
+    if (accelXOut < .1) {
+      accelXOut = .1;
+    }
+    if (accelXOut > 1) {
+      accelXOut = 1;
+    }
+
+    if (accelYOut < .1) {
+      accelYOut = .1;
+    }
+    if (accelYOut > 1) {
+      accelYOut = 1;
+    }
+
+    Serial.print("X ");
+    Serial.print(fromXEnd);
+    Serial.print("  Y ");
+    Serial.println(fromYEnd);
 
     /*
+    Serial.print( intervalX * accelXOut);
+    Serial.print("\t");
+    Serial.println(intervalY * accelXOut);
+
     Serial.print("From Start ");
     Serial.print(fromXStart);
     Serial.print("  To End ");
     Serial.print(fromXEnd);
     Serial.print("  Accel ");
-    Serial.println(accel);
-
+    Serial.println(accelXOut);
 
     Serial.print("From Start ");
     Serial.print(fromXStart);
@@ -155,24 +186,12 @@ void XY_Pos(float XCard, float YCard) {
     Serial.println(fromXEnd);
     */
 
-    if (accelX < .1) {
-      accelX = .1;
-    }
-    if (accelX > 1) {
-      accelX = 1;
-    }
 
-    if (accelY < .1) {
-      accelY = .1;
-    }
-    if (accelY > 1) {
-      accelY = 1;
-    }
-
-    // Serial.println(accel);
+    // if (currentOverallAccl - previousOverallAccl >= accelXOut*200) {
+    //  previousOverallAccl = currentOverallAccl;
 
     if (XCard - StepXPos != 0) {
-      if (currentMicrosX - previousMicrosX >= (intervalX)*accelX) {
+      if (currentMicrosX - previousMicrosX >= (intervalX * accelXOut)) {
         previousMicrosX = currentMicrosX;
 
         digitalWrite(latchPin, LOW);
@@ -201,7 +220,7 @@ void XY_Pos(float XCard, float YCard) {
 
 
     if (YCard - StepYPos != 0) {
-      if (currentMicrosY - previousMicrosY >= (intervalY)*accelY) {
+      if (currentMicrosY - previousMicrosY >= (intervalY * accelXOut)) {
         previousMicrosY = currentMicrosY;
 
         digitalWrite(latchPin, LOW);
@@ -227,6 +246,7 @@ void XY_Pos(float XCard, float YCard) {
     } else {
       StepYDir = 0;
     }
+    //}
   }
   disableSteppers();
 }
