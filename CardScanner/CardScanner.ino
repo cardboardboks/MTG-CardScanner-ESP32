@@ -28,13 +28,13 @@ byte ShiftRegOut = 0b00000000;
 
 int range = 100;
 
-unsigned long previousMicrosX = 0;
-unsigned long previousMicrosY = 0;
+unsigned long previousMicrosStep = 0;
 unsigned long previousMicrosAccl = 0;
 
+float speed = 500;
 float intervalX = 400;
 float intervalY = 400;
-float intervalAccl = 400;
+float intervalAccl = 2500;
 
 const byte numChars = 32;
 char receivedChars[numChars];
@@ -95,9 +95,13 @@ void loop() {
   int testX = random(-10000, 10000);
   int testY = random(-10000, 10000);
 
- // XY_Pos(testX, testY);
+  //XY_Pos(testX, testY);
+  //XY_Pos(0, 0);
 
   recvWithStartEndMarkers();
+
+  //Serial.println("Y");
+  //delay(2000);
 
   if (newData == true) {
     strcpy(tempChars, receivedChars);
