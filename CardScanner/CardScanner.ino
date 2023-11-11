@@ -28,10 +28,8 @@ byte ShiftRegOut = 0b00000000;
 
 int range = 100;
 
-unsigned long previousMicrosX = 0;
-unsigned long previousMicrosY = 0;
+unsigned long previousMicrosStep = 0;
 unsigned long previousMicrosAccl = 0;
-unsigned long previousOverallAccl = 0;
 
 float speed = 500;
 float intervalX = 400;

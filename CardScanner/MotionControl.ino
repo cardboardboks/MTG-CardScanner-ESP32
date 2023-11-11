@@ -8,9 +8,6 @@ void XY_Pos(float XCard, float YCard) {
   float accelXOut = 1;
   float accelYOut = 1;
 
-  int accelerate = 1;
-  int decelerate = 0;
-
   float startXPos = 0;
   float endXPos = 0;
   float startYPos = 0;
@@ -23,30 +20,43 @@ void XY_Pos(float XCard, float YCard) {
 
   int acclDur = 500;
 
-  enalbeSteppers();
+  float XCardTarget = XCard - StepXPos;
+  float YCardTarget = YCard - StepYPos;
 
-  if (XCard - StepXPos > 0) {
+  int XLong = 0;
+  int XShort = 0;
+  int YLong = 0;
+  int YShort = 0;
+
+  float longStep = 0;
+  float shortStep = 0;
+
+  float longStepTarget = 0;
+  float shortStepInc = 0;
+  float longStepInc = 0;
+
+  //Set X Stepper direction pin to the required direction
+  if (XCardTarget > 0) {
     bitSet(ShiftRegOut, 2);
     StepXDir = 1;
-  } else if (XCard - StepXPos < 0) {
+  } else if (XCardTarget < 0) {
     bitClear(ShiftRegOut, 2);
     StepXDir = -1;
   } else {
     StepXDir = 0;
   }
-
-  if (YCard - StepYPos > 0) {
+  //Set Y Stepper direction pin to the required direction
+  if (YCardTarget > 0) {
     bitSet(ShiftRegOut, 6);
     StepYDir = 1;
-  } else if (YCard - StepYPos < 0) {
+  } else if (YCardTarget < 0) {
     bitClear(ShiftRegOut, 6);
     StepYDir = -1;
   } else {
     StepYDir = 0;
   }
-  float XCardTarget = XCard - StepXPos;
-  float YCardTarget = YCard - StepYPos;
 
+  //Make both CardTargets positive for easier use latter on
   if (XCardTarget < 0) {
     XCardTarget *= -1;
   }
@@ -56,37 +66,30 @@ void XY_Pos(float XCard, float YCard) {
 
   if (XCardTarget > YCardTarget) {
     if (XCardTarget == 0 || YCardTarget == 0) {
-      intervalX = speed;
-      intervalY = speed;
-    } else {
-      intervalX = speed;
-      intervalY = speed * (XCardTarget / YCardTarget);
+      XLong = 1;
+      YShort = 1;
+      longStepTarget = XCardTarget;
     }
   }
 
   if (YCardTarget > XCardTarget) {
     if (YCardTarget == 0 || XCardTarget == 0) {
-      intervalX = speed;
-      intervalY = speed;
-    } else {
-      intervalX = speed * (YCardTarget / XCardTarget);
-      intervalY = speed;
+      YLong = 1;
+      XShort = 1;
+      longStepTarget = YCardTarget;
     }
   }
 
   if (XCardTarget == YCardTarget) {
-    intervalX = speed;
-    intervalY = speed;
+    XLong = 1;
+    YShort = 1;
+    longStepTarget = XCardTarget;
   }
 
   startXPos = StepXPos;
   endXPos = XCard;
   startYPos = StepYPos;
   endYPos = YCard;
-
-
-
-
 
   Serial.print("X ");
   Serial.print(XCardTarget);
@@ -104,14 +107,51 @@ void XY_Pos(float XCard, float YCard) {
     Serial.println(" one is zero");
   }
 
+  enalbeSteppers();
+
+  //Loop to run through until movment is complete
+  while (longStep < longStepTarget) {
+
+    unsigned long currentMicrosStep = micros();
+
+    if (currentMicrosStep - previousMicrosStep >= 600) {
+      previousMicrosStep = currentMicrosStep;
+
+      if (XLong == 1) {
+        stepX();
+        StepXPos++;
+      } else {
+        stepY();
+        StepYPos++;
+      }
+      Serial.println(longStep);
+      longStep++;
+      longStepInc++;
+
+      if (shortStepInc <= longStepInc) {
+
+        longStepInc = 0;
+
+        if (XShort == 1) {
+          stepX();
+          StepYPos++;
+        } else {
+          stepY();
+          StepXPos++;
+        }
+      }
+    }
+  }
+  disableSteppers();
+}
 
 
-  while (StepXDir != 0 || StepYDir != 0) {
+void Z_Pos(int ZCard) {
+}
 
-    unsigned long currentMicrosX = micros();
-    unsigned long currentMicrosY = micros();
+//Acceleration stuff not needed yet
+/*
     unsigned long currentMicrosAccl = micros();
-    unsigned long currentOverallAccl = micros();
 
     if (currentMicrosAccl - previousMicrosAccl >= intervalAccl) {
       previousMicrosAccl = currentMicrosAccl;
@@ -152,12 +192,10 @@ void XY_Pos(float XCard, float YCard) {
 
       if (fromXStart < acclDur && fromXEnd > acclDur) {
         accelX -= .05;
-        //Serial.print("Faster ");
       }
 
       if (fromXEnd < acclDur && fromXStart > acclDur) {
         accelX += .05;
-        //Serial.print("slower ");
       }
     }
 
@@ -201,103 +239,5 @@ void XY_Pos(float XCard, float YCard) {
     Serial.print(fromXStart);
     Serial.print("  To End ");
     Serial.println(fromXEnd);
-    */
-
-
-    // if (currentOverallAccl - previousOverallAccl >= accelXOut*200) {
-    //  previousOverallAccl = currentOverallAccl;
-
-    if (XCard - StepXPos != 0) {
-      if (currentMicrosX - previousMicrosX >= (intervalX * accelXOut)) {
-        previousMicrosX = currentMicrosX;
-
-        digitalWrite(latchPin, LOW);
-
-        bitSet(ShiftRegOut, 7);
-        bitSet(ShiftRegOut, 1);
-
-        shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
-
-        digitalWrite(latchPin, HIGH);
-
-        digitalWrite(latchPin, LOW);
-
-        bitClear(ShiftRegOut, 7);
-        bitClear(ShiftRegOut, 1);
-
-        shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
-
-        digitalWrite(latchPin, HIGH);
-
-        StepXPos += StepXDir;
-      }
-    } else {
-      StepXDir = 0;
-    }
-
-
-    if (YCard - StepYPos != 0) {
-      if (currentMicrosY - previousMicrosY >= (intervalY * accelYOut)) {
-        previousMicrosY = currentMicrosY;
-
-        digitalWrite(latchPin, LOW);
-
-        bitSet(ShiftRegOut, 7);
-        bitSet(ShiftRegOut, 5);
-
-        shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
-
-        digitalWrite(latchPin, HIGH);
-
-        digitalWrite(latchPin, LOW);
-
-        bitClear(ShiftRegOut, 7);
-        bitClear(ShiftRegOut, 5);
-
-        shiftOut(dataPin, clockPin, MSBFIRST, ShiftRegOut);
-
-        digitalWrite(latchPin, HIGH);
-
-        StepYPos += StepYDir;
-      }
-    } else {
-      StepYDir = 0;
-    }
-    //}
-  }
-  disableSteppers();
-}
-
-void Z_Pos(int ZCard) {
-}
-
-void disableSteppers() {
-  digitalWrite(latchPin, LOW);
-  shiftOut(dataPin, clockPin, MSBFIRST, 0b11111111);
-  digitalWrite(latchPin, HIGH);
-}
-
-void enalbeSteppers() {
-  digitalWrite(latchPin, LOW);
-  shiftOut(dataPin, clockPin, MSBFIRST, 0b00000000);
-  digitalWrite(latchPin, HIGH);
-}
-
-int gcd(int A, int B) {
-
-  do {
-    const int tmp(B);
-    B = A % B;
-    A = tmp;
-  } while (B != 0);
-
-  return A;
-}
-
-int lcm(const int& A, const int& B) {
-
-  int ret = A;
-  ret /= gcd(A, B);
-  ret *= B;
-  return ret;
-}
+    
+  */
