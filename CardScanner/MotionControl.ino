@@ -84,6 +84,28 @@ void XY_Pos(float XCard, float YCard) {
   startYPos = StepYPos;
   endYPos = YCard;
 
+
+
+
+
+  Serial.print("X ");
+  Serial.print(XCardTarget);
+  Serial.print(" Y ");
+  Serial.println(YCardTarget);
+
+  if (YCardTarget > 0 && XCardTarget > 0) {
+    Serial.print("  LCD ");
+    Serial.print(lcm(YCardTarget, XCardTarget));
+    Serial.print("X ");
+    Serial.print(lcm(YCardTarget, XCardTarget) / XCardTarget);
+    Serial.print(" Y ");
+    Serial.println(lcm(YCardTarget, XCardTarget) / YCardTarget);
+  } else {
+    Serial.println(" one is zero");
+  }
+
+
+
   while (StepXDir != 0 || StepYDir != 0) {
 
     unsigned long currentMicrosX = micros();
@@ -259,4 +281,23 @@ void enalbeSteppers() {
   digitalWrite(latchPin, LOW);
   shiftOut(dataPin, clockPin, MSBFIRST, 0b00000000);
   digitalWrite(latchPin, HIGH);
+}
+
+int gcd(int A, int B) {
+
+  do {
+    const int tmp(B);
+    B = A % B;
+    A = tmp;
+  } while (B != 0);
+
+  return A;
+}
+
+int lcm(const int& A, const int& B) {
+
+  int ret = A;
+  ret /= gcd(A, B);
+  ret *= B;
+  return ret;
 }
