@@ -95,8 +95,13 @@ void loop() {
   int testX = random(-8000, 8000);
   int testY = random(-8000, 8000);
 
-  //XY_Pos(testX, testY);
-  //XY_Pos(0, 0);
+  XY_Pos(testX, testY);
+
+  testX = random(-100, 100);
+  testY = random(-100, 100);
+
+  XY_Pos(testX, testY);
+
 
   recvWithStartEndMarkers();
 
