@@ -33,8 +33,11 @@ void XY_Pos(float XCard, float YCard) {
   float shortStep = 0;
 
   float longStepTarget = 0;
+
   float shortStepInc = 0;
+  float shortStepIncCount = 0;
   float longStepInc = 0;
+  float longStepIncCount = 0;
 
   //Set X Stepper direction pin to the required direction
   if (XCardTarget > 0) {
@@ -103,9 +106,10 @@ void XY_Pos(float XCard, float YCard) {
 
   //Long X Move
   if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
-    if ((lcm(YCardTarget, XCardTarget) / XCardTarget) == 1 && (lcm(YCardTarget, XCardTarget) / YCardTarget) != 1) {
+    if ((lcm(YCardTarget, XCardTarget) / XCardTarget) < (lcm(YCardTarget, XCardTarget) / YCardTarget)) {
       XLong = 1;
       YShort = 1;
+      longStepInc = lcm(YCardTarget, XCardTarget) / XCardTarget;
       shortStepInc = lcm(YCardTarget, XCardTarget) / YCardTarget;
       longStepTarget = XCardTarget;
     }
@@ -113,9 +117,10 @@ void XY_Pos(float XCard, float YCard) {
 
   //Long Y Move
   if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
-    if ((lcm(YCardTarget, XCardTarget) / XCardTarget) != 1 && (lcm(YCardTarget, XCardTarget) / YCardTarget) == 1) {
+    if ((lcm(YCardTarget, XCardTarget) / XCardTarget) > (lcm(YCardTarget, XCardTarget) / YCardTarget)) {
       YLong = 1;
       XShort = 1;
+      longStepInc = lcm(YCardTarget, XCardTarget) / YCardTarget;
       shortStepInc = lcm(YCardTarget, XCardTarget) / XCardTarget;
       longStepTarget = YCardTarget;
     }
@@ -126,6 +131,7 @@ void XY_Pos(float XCard, float YCard) {
     if ((lcm(YCardTarget, XCardTarget) / XCardTarget) == 1 && (lcm(YCardTarget, XCardTarget) / YCardTarget) == 1) {
       XLong = 1;
       YShort = 1;
+      longStepInc = 1;
       shortStepInc = 1;
       longStepTarget = XCardTarget;
     }
@@ -267,19 +273,19 @@ void XY_Pos(float XCard, float YCard) {
       if (XLong == 1) {
         stepX();
         longStep++;
-        longStepInc++;
+        longStepIncCount += longStepInc;
         StepXPos += StepXDir;
       }
       if (YLong == 1) {
         stepY();
         longStep++;
-        longStepInc++;
+        longStepIncCount += longStepInc;
         StepYPos += StepYDir;
       }
 
-      if (shortStepInc == longStepInc) {
+      if (longStepIncCount >= shortStepInc) {
 
-        longStepInc = 0;
+        longStepIncCount -= shortStepInc;
 
         if (XShort == 1) {
           stepX();
