@@ -92,8 +92,8 @@ void setup() {
 
 void loop() {
 
-  int testX = random(-10000, 10000);
-  int testY = random(-10000, 10000);
+  int testX = random(-8000, 8000);
+  int testY = random(-8000, 8000);
 
   //XY_Pos(testX, testY);
   //XY_Pos(0, 0);

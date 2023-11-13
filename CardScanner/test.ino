@@ -1,3 +1,4 @@
+/*
 void XY_Pos(float XCard, float YCard) {
 
   int accelTarget = 0;
@@ -7,7 +8,6 @@ void XY_Pos(float XCard, float YCard) {
 
   float accelXOut = 1;
   float accelYOut = 1;
-  float accelMaster = 0;
 
   float startXPos = 0;
   float endXPos = 0;
@@ -65,102 +65,39 @@ void XY_Pos(float XCard, float YCard) {
     YCardTarget *= -1;
   }
 
-  /*
-
   if (XCardTarget > YCardTarget) {
-
-
-
-
     if (XCardTarget == 0 || YCardTarget == 0) {
       XLong = 1;
       YShort = 1;
-      // shortStepInc = lcm(YCardTarget, XCardTarget) / YCardTarget;
       longStepTarget = XCardTarget;
     }
-
-
-
   }
 
   if (YCardTarget > XCardTarget) {
     if (YCardTarget == 0 || XCardTarget == 0) {
       YLong = 1;
       XShort = 1;
-      //shortStepInc = lcm(YCardTarget, XCardTarget) / XCardTarget;
       longStepTarget = YCardTarget;
     }
   }
 
-
-  */
-
+  if (XCardTarget == YCardTarget) {
+    XLong = 1;
+    YShort = 1;
+    longStepTarget = XCardTarget;
+  }
 
   startXPos = StepXPos;
   endXPos = XCard;
   startYPos = StepYPos;
   endYPos = YCard;
 
-  //Long X Move
-  if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
-    if ((lcm(YCardTarget, XCardTarget) / XCardTarget) == 1 && (lcm(YCardTarget, XCardTarget) / YCardTarget) != 1) {
-      XLong = 1;
-      YShort = 1;
-      shortStepInc = lcm(YCardTarget, XCardTarget) / YCardTarget;
-      longStepTarget = XCardTarget;
-    }
-  }
-
-  //Long Y Move
-  if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
-    if ((lcm(YCardTarget, XCardTarget) / XCardTarget) != 1 && (lcm(YCardTarget, XCardTarget) / YCardTarget) == 1) {
-      YLong = 1;
-      XShort = 1;
-      shortStepInc = lcm(YCardTarget, XCardTarget) / XCardTarget;
-      longStepTarget = YCardTarget;
-    }
-  }
-
-  //Pure Diagonal Move
-  if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
-    if ((lcm(YCardTarget, XCardTarget) / XCardTarget) == 1 && (lcm(YCardTarget, XCardTarget) / YCardTarget) == 1) {
-      XLong = 1;
-      YShort = 1;
-      shortStepInc = 1;
-      longStepTarget = XCardTarget;
-    }
-  }
-
-  //Pure X move
-  if (startYPos - endYPos == 0 && startXPos - endXPos != 0) {
-    XLong = 1;
-    longStepTarget = XCardTarget;
-  }
-
-  //Pure Y move
-  if (startXPos - endXPos == 0 && startYPos - endYPos != 0) {
-    YLong = 1;
-    longStepTarget = YCardTarget;
-  }
-
-
-
-
-  Serial.print("Xs ");
-  Serial.print(startXPos);
-  Serial.print(" Ye ");
-  Serial.println(endXPos);
-  Serial.print("Ys ");
-  Serial.print(startYPos);
-  Serial.print(" Ye ");
-  Serial.println(endYPos);
-
   Serial.print("X ");
   Serial.print(XCardTarget);
   Serial.print(" Y ");
   Serial.println(YCardTarget);
 
-  if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
+  if (YCardTarget > 0 && XCardTarget > 0) {
     Serial.print("  LCD ");
     Serial.print(lcm(YCardTarget, XCardTarget));
     Serial.print("X ");
@@ -168,13 +105,8 @@ void XY_Pos(float XCard, float YCard) {
     Serial.print(" Y ");
     Serial.println(lcm(YCardTarget, XCardTarget) / YCardTarget);
   } else {
-    Serial.println("one is zero");
+    Serial.println(" one is zero");
   }
-
-  Serial.print("longStepTarget ");
-  Serial.print(longStepTarget);
-  Serial.print("  shortStepInc ");
-  Serial.println(shortStepInc);
 
   enalbeSteppers();
 
@@ -182,9 +114,47 @@ void XY_Pos(float XCard, float YCard) {
   while (longStep < longStepTarget) {
 
     unsigned long currentMicrosStep = micros();
+
+    if (currentMicrosStep - previousMicrosStep >= 600) {
+      previousMicrosStep = currentMicrosStep;
+
+      if (XLong == 1) {
+        stepX();
+        StepXPos += StepXDir;
+      } else {
+        stepY();
+        StepYPos += StepYDir;
+      }
+      longStep++;
+      longStepInc++;
+
+      if (shortStepInc <= longStepInc) {
+
+        longStepInc = 0;
+
+        if (XShort == 1) {
+          stepX();
+          StepYPos += StepXDir;
+        } else {
+          stepY();
+          StepXPos += StepYDir;
+        }
+      }
+      Serial.print(StepXPos);
+      Serial.print("\t");
+      Serial.println(StepYPos);
+    }
+  }
+  disableSteppers();
+}
+
+
+void Z_Pos(int ZCard) {
+}
+
+//Acceleration stuff not needed yet
+/*
     unsigned long currentMicrosAccl = micros();
-
-
 
     if (currentMicrosAccl - previousMicrosAccl >= intervalAccl) {
       previousMicrosAccl = currentMicrosAccl;
@@ -215,20 +185,20 @@ void XY_Pos(float XCard, float YCard) {
       }
 
       if (fromYStart < acclDur && fromYEnd > acclDur) {
-        accelY -= .025;
+        accelY -= .05;
       }
 
       if (fromYEnd < acclDur && fromYStart > acclDur) {
-        accelY += .025;
+        accelY += .05;
       }
 
 
       if (fromXStart < acclDur && fromXEnd > acclDur) {
-        accelX -= .025;
+        accelX -= .05;
       }
 
       if (fromXEnd < acclDur && fromXStart > acclDur) {
-        accelX += .025;
+        accelX += .05;
       }
     }
 
@@ -239,63 +209,38 @@ void XY_Pos(float XCard, float YCard) {
     if (accelXOut < .1) {
       accelXOut = .1;
     }
-    if (accelXOut > 1) {
-      accelXOut = 1;
+    if (accelXOut > 10) {
+      accelXOut = 10;
     }
 
     if (accelYOut < .1) {
       accelYOut = .1;
     }
-    if (accelYOut > 1) {
-      accelYOut = 1;
+    if (accelYOut > 10) {
+      accelYOut = 10;
     }
 
-    if (XLong == 1) {
-      accelMaster = accelXOut;
-    }
-
-    if (YLong == 1) {
-      accelMaster = accelYOut;
-    }
+    /*
+    Serial.print("X ");
+    Serial.print(fromXEnd);
+    Serial.print("  Y ");
+    Serial.println(fromYEnd);
 
 
+    Serial.print( intervalX * accelXOut);
+    Serial.print("\t");
+    Serial.println(intervalY * accelXOut);
 
-    if (currentMicrosStep - previousMicrosStep >= 400 * accelMaster) {
-      previousMicrosStep = currentMicrosStep;
+    Serial.print("From Start ");
+    Serial.print(fromXStart);
+    Serial.print("  To End ");
+    Serial.print(fromXEnd);
+    Serial.print("  Accel ");
+    Serial.println(accelXOut);
 
-
-      if (XLong == 1) {
-        stepX();
-        longStep++;
-        longStepInc++;
-        StepXPos += StepXDir;
-      }
-      if (YLong == 1) {
-        stepY();
-        longStep++;
-        longStepInc++;
-        StepYPos += StepYDir;
-      }
-
-      if (shortStepInc == longStepInc) {
-
-        longStepInc = 0;
-
-        if (XShort == 1) {
-          stepX();
-          StepXPos += StepXDir;
-        }
-        if (YShort == 1) {
-          stepY();
-          StepYPos += StepYDir;
-        }
-      }
-
-
-      // Serial.print(StepXPos);
-      // Serial.print("\t");
-      //Serial.println(StepYPos);
-    }
-  }
-  disableSteppers();
-}
+    Serial.print("From Start ");
+    Serial.print(fromXStart);
+    Serial.print("  To End ");
+    Serial.println(fromXEnd);
+    
+  */
