@@ -34,7 +34,7 @@ unsigned long previousMicrosAccl = 0;
 float speed = 500;
 float intervalX = 400;
 float intervalY = 400;
-float intervalAccl = 2500;
+float intervalAccl = 1000;
 
 const byte numChars = 32;
 char receivedChars[numChars];
@@ -92,16 +92,12 @@ void setup() {
 
 void loop() {
 
+  /*
   int testX = random(-8000, 8000);
   int testY = random(-8000, 8000);
 
   XY_Pos(testX, testY);
-
-  testX = random(-100, 100);
-  testY = random(-100, 100);
-
-  XY_Pos(testX, testY);
-
+  */
 
   recvWithStartEndMarkers();
 

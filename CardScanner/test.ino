@@ -243,4 +243,57 @@ void Z_Pos(int ZCard) {
     Serial.print("  To End ");
     Serial.println(fromXEnd);
     
+
+
+
+
+
+      Serial.print("Xs ");
+  Serial.print(startXPos);
+  Serial.print(" Ye ");
+  Serial.println(endXPos);
+  Serial.print("Ys ");
+  Serial.print(startYPos);
+  Serial.print(" Ye ");
+  Serial.println(endYPos);
+
+  Serial.print("X ");
+  Serial.print(XCardTarget);
+  Serial.print(" Y ");
+  Serial.println(YCardTarget);
+
+  if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
+    Serial.print("  LCD ");
+    Serial.print(lcm(YCardTarget, XCardTarget));
+    Serial.print("X ");
+    Serial.print(lcm(YCardTarget, XCardTarget) / XCardTarget);
+    Serial.print(" Y ");
+    Serial.println(lcm(YCardTarget, XCardTarget) / YCardTarget);
+  } else {
+    Serial.println("one is zero");
+  }
+
+  Serial.print("longStepTarget ");
+  Serial.print(longStepTarget);
+  Serial.print("  shortStepInc ");
+  Serial.println(shortStepInc);
+
+
+
+        if (fromYStart < acclDur && fromYEnd > acclDur) {
+        accelY -= .025;
+      }
+
+      if (fromYEnd < acclDur && fromYStart > acclDur) {
+        accelY += .025;
+      }
+
+
+      if (fromXStart < acclDur && fromXEnd > acclDur) {
+        accelX -= .025;
+      }
+
+      if (fromXEnd < acclDur && fromXStart > acclDur) {
+        accelX += .025;
+      }
   */

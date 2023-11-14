@@ -149,39 +149,6 @@ void XY_Pos(float XCard, float YCard) {
     longStepTarget = YCardTarget;
   }
 
-
-
-
-  Serial.print("Xs ");
-  Serial.print(startXPos);
-  Serial.print(" Ye ");
-  Serial.println(endXPos);
-  Serial.print("Ys ");
-  Serial.print(startYPos);
-  Serial.print(" Ye ");
-  Serial.println(endYPos);
-
-  Serial.print("X ");
-  Serial.print(XCardTarget);
-  Serial.print(" Y ");
-  Serial.println(YCardTarget);
-
-  if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
-    Serial.print("  LCD ");
-    Serial.print(lcm(YCardTarget, XCardTarget));
-    Serial.print("X ");
-    Serial.print(lcm(YCardTarget, XCardTarget) / XCardTarget);
-    Serial.print(" Y ");
-    Serial.println(lcm(YCardTarget, XCardTarget) / YCardTarget);
-  } else {
-    Serial.println("one is zero");
-  }
-
-  Serial.print("longStepTarget ");
-  Serial.print(longStepTarget);
-  Serial.print("  shortStepInc ");
-  Serial.println(shortStepInc);
-
   enalbeSteppers();
 
   //Loop to run through until movment is complete
@@ -220,41 +187,25 @@ void XY_Pos(float XCard, float YCard) {
         fromYEnd = (StepYPos - endYPos);
       }
 
-      if (fromYStart < acclDur && fromYEnd > acclDur) {
-        accelY -= .025;
+      if (fromYStart < fromYEnd) {
+        accelY -= .005;
       }
 
-      if (fromYEnd < acclDur && fromYStart > acclDur) {
-        accelY += .025;
+      if (fromYEnd < fromYStart) {
+        accelY += .005;
       }
 
-
-      if (fromXStart < acclDur && fromXEnd > acclDur) {
-        accelX -= .025;
+      if (fromXStart < fromXEnd) {
+        accelX -= .005;
       }
 
-      if (fromXEnd < acclDur && fromXStart > acclDur) {
-        accelX += .025;
+      if (fromXEnd < fromXStart) {
+        accelX += .005;
       }
     }
 
     accelXOut = accelX;
     accelYOut = accelY;
-
-
-    if (accelXOut < .1) {
-      accelXOut = .1;
-    }
-    if (accelXOut > 1) {
-      accelXOut = 1;
-    }
-
-    if (accelYOut < .1) {
-      accelYOut = .1;
-    }
-    if (accelYOut > 1) {
-      accelYOut = 1;
-    }
 
     if (XLong == 1) {
       accelMaster = accelXOut;
@@ -264,9 +215,16 @@ void XY_Pos(float XCard, float YCard) {
       accelMaster = accelYOut;
     }
 
+    accelMaster *= 1500;
 
+    if (accelMaster < 50) {
+      accelMaster = 50;
+    }
+    if (accelMaster > 1500) {
+      accelMaster = 1500;
+    }
 
-    if (currentMicrosStep - previousMicrosStep >= 400 * accelMaster) {
+    if (currentMicrosStep - previousMicrosStep >= accelMaster) {
       previousMicrosStep = currentMicrosStep;
 
 
