@@ -1,7 +1,5 @@
 void XY_Pos(float XCard, float YCard) {
 
-  int accelTarget = 0;
-
   float accelX = 1;
   float accelY = 1;
 
@@ -18,8 +16,6 @@ void XY_Pos(float XCard, float YCard) {
   float fromXEnd = 0;
   float fromYStart = 0;
   float fromYEnd = 0;
-
-  int acclDur = 500;
 
   float XCardTarget = XCard - StepXPos;
   float YCardTarget = YCard - StepYPos;
@@ -68,37 +64,7 @@ void XY_Pos(float XCard, float YCard) {
     YCardTarget *= -1;
   }
 
-  /*
-
-  if (XCardTarget > YCardTarget) {
-
-
-
-
-    if (XCardTarget == 0 || YCardTarget == 0) {
-      XLong = 1;
-      YShort = 1;
-      // shortStepInc = lcm(YCardTarget, XCardTarget) / YCardTarget;
-      longStepTarget = XCardTarget;
-    }
-
-
-
-  }
-
-  if (YCardTarget > XCardTarget) {
-    if (YCardTarget == 0 || XCardTarget == 0) {
-      YLong = 1;
-      XShort = 1;
-      //shortStepInc = lcm(YCardTarget, XCardTarget) / XCardTarget;
-      longStepTarget = YCardTarget;
-    }
-  }
-
-
-  */
-
-
+  //Note postions for latter use
   startXPos = StepXPos;
   endXPos = XCard;
   startYPos = StepYPos;
