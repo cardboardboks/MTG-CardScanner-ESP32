@@ -109,5 +109,6 @@ void loop() {
     parseData();
     showParsedData();
     newData = false;
+    Serial.println("Y");
   }
 }

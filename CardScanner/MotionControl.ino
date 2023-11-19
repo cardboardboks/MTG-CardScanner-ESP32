@@ -220,11 +220,6 @@ void XY_Pos(float XCard, float YCard) {
           StepYPos += StepYDir;
         }
       }
-
-
-      // Serial.print(StepXPos);
-      // Serial.print("\t");
-      //Serial.println(StepYPos);
     }
   }
   disableSteppers();
