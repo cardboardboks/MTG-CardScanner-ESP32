@@ -101,8 +101,8 @@ void loop() {
 
   recvWithStartEndMarkers();
 
-  //Serial.println("Y");
-  //delay(2000);
+ // Serial.println("Y");
+  //delay(500);
 
   if (newData == true) {
     strcpy(tempChars, receivedChars);

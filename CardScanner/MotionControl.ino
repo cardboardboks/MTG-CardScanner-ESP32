@@ -35,6 +35,8 @@ void XY_Pos(float XCard, float YCard) {
   float longStepInc = 0;
   float longStepIncCount = 0;
 
+  if(StepXPos != XCard && StepYPos != YCard){
+
   //Set X Stepper direction pin to the required direction
   if (XCardTarget > 0) {
     bitSet(ShiftRegOut, 2);
@@ -223,4 +225,7 @@ void XY_Pos(float XCard, float YCard) {
     }
   }
   disableSteppers();
+  }else{
+    delay(500);    
+  }
 }

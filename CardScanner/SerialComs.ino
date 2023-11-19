@@ -46,6 +46,4 @@ void parseData() {  // split the data into its parts
 
 void showParsedData() {
   XY_Pos(cardX, cardY);
-
-   Serial.println("Y");
 }
