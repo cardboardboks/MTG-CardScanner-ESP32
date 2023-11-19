@@ -71,7 +71,7 @@ void setup() {
   while (!Serial) {
     delay(1);
   }
-
+  /*
   Serial.println("Adafruit VL6180x test!");
   if (!vl.begin()) {
     Serial.println("Failed to find sensor");
@@ -79,7 +79,7 @@ void setup() {
       ;
   }
   Serial.println("Sensor found!");
-
+*/
 
   //set pins to output so you can control the shift register
   pinMode(latchPin, OUTPUT);
@@ -92,26 +92,20 @@ void setup() {
 
 void loop() {
 
+  /*
   int testX = random(-8000, 8000);
   int testY = random(-8000, 8000);
 
   XY_Pos(testX, testY);
-
-  testX = random(-100, 100);
-  testY = random(-100, 100);
-
-  XY_Pos(testX, testY);
-
+*/
 
   recvWithStartEndMarkers();
-
-  //Serial.println("Y");
-  //delay(2000);
 
   if (newData == true) {
     strcpy(tempChars, receivedChars);
     parseData();
     showParsedData();
     newData = false;
+    Serial.println("Y");
   }
 }

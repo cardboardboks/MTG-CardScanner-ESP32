@@ -68,37 +68,6 @@ void XY_Pos(float XCard, float YCard) {
     YCardTarget *= -1;
   }
 
-  /*
-
-  if (XCardTarget > YCardTarget) {
-
-
-
-
-    if (XCardTarget == 0 || YCardTarget == 0) {
-      XLong = 1;
-      YShort = 1;
-      // shortStepInc = lcm(YCardTarget, XCardTarget) / YCardTarget;
-      longStepTarget = XCardTarget;
-    }
-
-
-
-  }
-
-  if (YCardTarget > XCardTarget) {
-    if (YCardTarget == 0 || XCardTarget == 0) {
-      YLong = 1;
-      XShort = 1;
-      //shortStepInc = lcm(YCardTarget, XCardTarget) / XCardTarget;
-      longStepTarget = YCardTarget;
-    }
-  }
-
-
-  */
-
-
   startXPos = StepXPos;
   endXPos = XCard;
   startYPos = StepYPos;
@@ -150,7 +119,7 @@ void XY_Pos(float XCard, float YCard) {
   }
 
 
-
+  /*
 
   Serial.print("Xs ");
   Serial.print(startXPos);
@@ -181,6 +150,7 @@ void XY_Pos(float XCard, float YCard) {
   Serial.print(longStepTarget);
   Serial.print("  shortStepInc ");
   Serial.println(shortStepInc);
+  */
 
   enalbeSteppers();
 
