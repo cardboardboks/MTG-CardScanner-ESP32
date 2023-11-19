@@ -231,6 +231,6 @@ void XY_Pos(float XCard, float YCard) {
     }
     disableSteppers();
   } else {
-    delay(500);
+    delay(100);
   }
 }
