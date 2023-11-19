@@ -66,7 +66,6 @@ void XY_Pos(float XCard, float YCard) {
     YCardTarget *= -1;
   }
 
-  //Note postions for latter use
   startXPos = StepXPos;
   endXPos = XCard;
   startYPos = StepYPos;
