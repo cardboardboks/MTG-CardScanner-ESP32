@@ -35,197 +35,202 @@ void XY_Pos(float XCard, float YCard) {
   float longStepInc = 0;
   float longStepIncCount = 0;
 
-  //Set X Stepper direction pin to the required direction
-  if (XCardTarget > 0) {
-    bitSet(ShiftRegOut, 2);
-    StepXDir = 1;
-  } else if (XCardTarget < 0) {
-    bitClear(ShiftRegOut, 2);
-    StepXDir = -1;
-  } else {
-    StepXDir = 0;
-  }
-  //Set Y Stepper direction pin to the required direction
-  if (YCardTarget > 0) {
-    bitSet(ShiftRegOut, 6);
-    StepYDir = 1;
-  } else if (YCardTarget < 0) {
-    bitClear(ShiftRegOut, 6);
-    StepYDir = -1;
-  } else {
-    StepYDir = 0;
-  }
+  if (StepXPos != XCard && StepYPos != YCard) {
 
-  //Make both CardTargets positive for easier use latter on
-  if (XCardTarget < 0) {
-    XCardTarget *= -1;
-  }
-  if (YCardTarget < 0) {
-    YCardTarget *= -1;
-  }
+    //Set X Stepper direction pin to the required direction
+    if (XCardTarget > 0) {
+      bitSet(ShiftRegOut, 2);
+      StepXDir = 1;
+    } else if (XCardTarget < 0) {
+      bitClear(ShiftRegOut, 2);
+      StepXDir = -1;
+    } else {
+      StepXDir = 0;
+    }
+    //Set Y Stepper direction pin to the required direction
+    if (YCardTarget > 0) {
+      bitSet(ShiftRegOut, 6);
+      StepYDir = 1;
+    } else if (YCardTarget < 0) {
+      bitClear(ShiftRegOut, 6);
+      StepYDir = -1;
+    } else {
+      StepYDir = 0;
+    }
 
-  //Note postions for latter use
-  startXPos = StepXPos;
-  endXPos = XCard;
-  startYPos = StepYPos;
-  endYPos = YCard;
+    //Make both CardTargets positive for easier use latter on
+    if (XCardTarget < 0) {
+      XCardTarget *= -1;
+    }
+    if (YCardTarget < 0) {
+      YCardTarget *= -1;
+    }
 
-  //Long X Move
-  if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
-    if ((lcm(YCardTarget, XCardTarget) / XCardTarget) < (lcm(YCardTarget, XCardTarget) / YCardTarget)) {
+    //Note postions for latter use
+    startXPos = StepXPos;
+    endXPos = XCard;
+    startYPos = StepYPos;
+    endYPos = YCard;
+
+    //Long X Move
+    if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
+      if ((lcm(YCardTarget, XCardTarget) / XCardTarget) < (lcm(YCardTarget, XCardTarget) / YCardTarget)) {
+        XLong = 1;
+        YShort = 1;
+        longStepInc = lcm(YCardTarget, XCardTarget) / XCardTarget;
+        shortStepInc = lcm(YCardTarget, XCardTarget) / YCardTarget;
+        longStepTarget = XCardTarget;
+      }
+    }
+
+    //Long Y Move
+    if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
+      if ((lcm(YCardTarget, XCardTarget) / XCardTarget) > (lcm(YCardTarget, XCardTarget) / YCardTarget)) {
+        YLong = 1;
+        XShort = 1;
+        longStepInc = lcm(YCardTarget, XCardTarget) / YCardTarget;
+        shortStepInc = lcm(YCardTarget, XCardTarget) / XCardTarget;
+        longStepTarget = YCardTarget;
+      }
+    }
+
+    //Pure Diagonal Move
+    if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
+      if ((lcm(YCardTarget, XCardTarget) / XCardTarget) == 1 && (lcm(YCardTarget, XCardTarget) / YCardTarget) == 1) {
+        XLong = 1;
+        YShort = 1;
+        longStepInc = 1;
+        shortStepInc = 1;
+        longStepTarget = XCardTarget;
+      }
+    }
+
+    //Pure X move
+    if (startYPos - endYPos == 0 && startXPos - endXPos != 0) {
       XLong = 1;
-      YShort = 1;
-      longStepInc = lcm(YCardTarget, XCardTarget) / XCardTarget;
-      shortStepInc = lcm(YCardTarget, XCardTarget) / YCardTarget;
       longStepTarget = XCardTarget;
     }
-  }
 
-  //Long Y Move
-  if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
-    if ((lcm(YCardTarget, XCardTarget) / XCardTarget) > (lcm(YCardTarget, XCardTarget) / YCardTarget)) {
+    //Pure Y move
+    if (startXPos - endXPos == 0 && startYPos - endYPos != 0) {
       YLong = 1;
-      XShort = 1;
-      longStepInc = lcm(YCardTarget, XCardTarget) / YCardTarget;
-      shortStepInc = lcm(YCardTarget, XCardTarget) / XCardTarget;
       longStepTarget = YCardTarget;
     }
-  }
 
-  //Pure Diagonal Move
-  if (startXPos - endXPos != 0 && startYPos - endYPos != 0) {
-    if ((lcm(YCardTarget, XCardTarget) / XCardTarget) == 1 && (lcm(YCardTarget, XCardTarget) / YCardTarget) == 1) {
-      XLong = 1;
-      YShort = 1;
-      longStepInc = 1;
-      shortStepInc = 1;
-      longStepTarget = XCardTarget;
-    }
-  }
+    enalbeSteppers();
 
-  //Pure X move
-  if (startYPos - endYPos == 0 && startXPos - endXPos != 0) {
-    XLong = 1;
-    longStepTarget = XCardTarget;
-  }
+    //Loop to run through until movment is complete
+    while (longStep < longStepTarget) {
 
-  //Pure Y move
-  if (startXPos - endXPos == 0 && startYPos - endYPos != 0) {
-    YLong = 1;
-    longStepTarget = YCardTarget;
-  }
-
-  enalbeSteppers();
-
-  //Loop to run through until movment is complete
-  while (longStep < longStepTarget) {
-
-    unsigned long currentMicrosStep = micros();
-    unsigned long currentMicrosAccl = micros();
+      unsigned long currentMicrosStep = micros();
+      unsigned long currentMicrosAccl = micros();
 
 
 
-    if (currentMicrosAccl - previousMicrosAccl >= intervalAccl) {
-      previousMicrosAccl = currentMicrosAccl;
+      if (currentMicrosAccl - previousMicrosAccl >= intervalAccl) {
+        previousMicrosAccl = currentMicrosAccl;
 
-      //check if the distance being traveled is less then the acceleration distance and halve it so the acceleration and deacelrtion dont cancel out
-      if (StepXPos - startXPos < 0) {
-        fromXStart = (StepXPos - startXPos) * -1;
-      } else {
-        fromXStart = (StepXPos - startXPos);
+        //check if the distance being traveled is less then the acceleration distance and halve it so the acceleration and deacelrtion dont cancel out
+        if (StepXPos - startXPos < 0) {
+          fromXStart = (StepXPos - startXPos) * -1;
+        } else {
+          fromXStart = (StepXPos - startXPos);
+        }
+
+        if (StepXPos - endXPos < 0) {
+          fromXEnd = (StepXPos - endXPos) * -1;
+        } else {
+          fromXEnd = (StepXPos - endXPos);
+        }
+
+        if (StepYPos - startYPos < 0) {
+          fromYStart = (StepYPos - startYPos) * -1;
+        } else {
+          fromYStart = (StepYPos - startYPos);
+        }
+
+        if (StepYPos - endYPos < 0) {
+          fromYEnd = (StepYPos - endYPos) * -1;
+        } else {
+          fromYEnd = (StepYPos - endYPos);
+        }
+
+        if (fromYStart < fromYEnd) {
+          accelY -= .005;
+        }
+
+        if (fromYEnd < fromYStart) {
+          accelY += .005;
+        }
+
+        if (fromXStart < fromXEnd) {
+          accelX -= .005;
+        }
+
+        if (fromXEnd < fromXStart) {
+          accelX += .005;
+        }
       }
 
-      if (StepXPos - endXPos < 0) {
-        fromXEnd = (StepXPos - endXPos) * -1;
-      } else {
-        fromXEnd = (StepXPos - endXPos);
-      }
-
-      if (StepYPos - startYPos < 0) {
-        fromYStart = (StepYPos - startYPos) * -1;
-      } else {
-        fromYStart = (StepYPos - startYPos);
-      }
-
-      if (StepYPos - endYPos < 0) {
-        fromYEnd = (StepYPos - endYPos) * -1;
-      } else {
-        fromYEnd = (StepYPos - endYPos);
-      }
-
-      if (fromYStart < fromYEnd) {
-        accelY -= .005;
-      }
-
-      if (fromYEnd < fromYStart) {
-        accelY += .005;
-      }
-
-      if (fromXStart < fromXEnd) {
-        accelX -= .005;
-      }
-
-      if (fromXEnd < fromXStart) {
-        accelX += .005;
-      }
-    }
-
-    accelXOut = accelX;
-    accelYOut = accelY;
-
-    if (XLong == 1) {
-      accelMaster = accelXOut;
-    }
-
-    if (YLong == 1) {
-      accelMaster = accelYOut;
-    }
-
-    accelMaster *= 1500;
-
-    if (accelMaster < 50) {
-      accelMaster = 50;
-    }
-    if (accelMaster > 1500) {
-      accelMaster = 1500;
-    }
-
-    if (currentMicrosStep - previousMicrosStep >= accelMaster) {
-      previousMicrosStep = currentMicrosStep;
-
+      accelXOut = accelX;
+      accelYOut = accelY;
 
       if (XLong == 1) {
-        stepX();
-        longStep++;
-        longStepIncCount += longStepInc;
-        StepXPos += StepXDir;
+        accelMaster = accelXOut;
       }
+
       if (YLong == 1) {
-        stepY();
-        longStep++;
-        longStepIncCount += longStepInc;
-        StepYPos += StepYDir;
+        accelMaster = accelYOut;
       }
 
-      if (longStepIncCount >= shortStepInc) {
+      accelMaster *= 1500;
 
-        longStepIncCount -= shortStepInc;
+      if (accelMaster < 50) {
+        accelMaster = 50;
+      }
+      if (accelMaster > 1500) {
+        accelMaster = 1500;
+      }
 
-        if (XShort == 1) {
+      if (currentMicrosStep - previousMicrosStep >= accelMaster) {
+        previousMicrosStep = currentMicrosStep;
+
+
+        if (XLong == 1) {
           stepX();
+          longStep++;
+          longStepIncCount += longStepInc;
           StepXPos += StepXDir;
         }
-        if (YShort == 1) {
+        if (YLong == 1) {
           stepY();
+          longStep++;
+          longStepIncCount += longStepInc;
           StepYPos += StepYDir;
         }
+
+        if (longStepIncCount >= shortStepInc) {
+
+          longStepIncCount -= shortStepInc;
+
+          if (XShort == 1) {
+            stepX();
+            StepXPos += StepXDir;
+          }
+          if (YShort == 1) {
+            stepY();
+            StepYPos += StepYDir;
+          }
+        }
+
+
+        // Serial.print(StepXPos);
+        // Serial.print("\t");
+        //Serial.println(StepYPos);
       }
-
-
-      // Serial.print(StepXPos);
-      // Serial.print("\t");
-      //Serial.println(StepYPos);
     }
+    disableSteppers();
+  } else {
+    delay(500);
   }
-  disableSteppers();
 }
