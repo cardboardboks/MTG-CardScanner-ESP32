@@ -125,8 +125,6 @@ void XY_Pos(float XCard, float YCard) {
       unsigned long currentMicrosStep = micros();
       unsigned long currentMicrosAccl = micros();
 
-
-
       if (currentMicrosAccl - previousMicrosAccl >= intervalAccl) {
         previousMicrosAccl = currentMicrosAccl;
 
@@ -156,19 +154,19 @@ void XY_Pos(float XCard, float YCard) {
         }
 
         if (fromYStart < fromYEnd) {
-          accelY -= .005;
+          accelY -= .0025;
         }
 
         if (fromYEnd < fromYStart) {
-          accelY += .005;
+          accelY += .0025;
         }
 
         if (fromXStart < fromXEnd) {
-          accelX -= .005;
+          accelX -= .0025;
         }
 
         if (fromXEnd < fromXStart) {
-          accelX += .005;
+          accelX += .0025;
         }
       }
 
